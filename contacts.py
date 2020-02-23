@@ -64,18 +64,19 @@ def convertToCSV ():
     read_file.dropna()
     # drop duplicates
     read_file.drop_duplicates()
-    # save the ready google contacts file.
-
+    
+    # insert the "phone type" column and assign every value to "Mobile" before each phone number in the data frame.
     read_file.insert(4, 'Phone 1 - Type', 'Mobile', allow_duplicates = True)
     print(read_file.head())
 
+    # save the ready google contacts file.
     read_file.to_csv(export_file_path, index = None, header=True, index_label = True, encoding='utf-8')
     # root.destroy()
 
-# def exitApplication():
-#     MsgBox = tk.messagebox.askquestion ('Exit Application','Are you sure you want to exit the application?',icon = 'warning')
-#     if MsgBox == 'yes':
-#        root.destroy()
+def exitApplication():
+    MsgBox = tk.messagebox.askquestion ('Exit Application','Are you sure you want to exit the application?',icon = 'warning')
+    if MsgBox == 'yes':
+       root.destroy()
 
 def center(win):
     """
