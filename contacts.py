@@ -1,12 +1,12 @@
 """
     CopyRight Dr. Ahmad Hamdi Emara 2020
 """
-
 import tkinter as tk
 from tkinter import filedialog
-from tkinter import messagebox
-import sys
+# from tkinter import messagebox
+# import sys
 import pandas as pd
+import numpy as np
 
 root = tk.Tk()
 
@@ -24,9 +24,6 @@ def main():
 
     browseButton_Excel = tk.Button(text="      Import Excel File     ", command=getExcel, bg='green', fg='white', font=('helvetica', 12, 'bold'))
     main_canvas.create_window(150, 130, window=browseButton_Excel)
-
-    # exitButton = tk.Button(root, text='       Exit Application     ',command=exitApplication, bg='brown', fg='white', font=('helvetica', 12, 'bold'))
-    # main_canvas.create_window(150, 230, window=exitButton)
 
     saveAsButton_CSV = tk.Button(text='Convert to contacts', command=convertToCSV, bg='green', fg='white', font=('helvetica', 12, 'bold'))
     main_canvas.create_window(150, 180, window=saveAsButton_CSV)
@@ -56,15 +53,18 @@ def convertToCSV ():
     read_file.columns = ["Id", "Gender", "Name", "Middle name", "Family name", "Phone 1 - Value", "Receipts", "Amount", "City", "Area", "Street", "Branch", "Language", "Delivery", "Active", "Credit"]
 
     # drop any entry with empty phone number
-    # read_file = read_file[read_file['Phone 1 - Value'].astype(str).map(len) > 9].astype(str)
+    read_file['Phone 1 - Value'].replace('', np.nan, inplace=True)
 
     # drop unnecessary columns from the data frame.
     read_file = read_file.drop(["Receipts", "Amount", "Delivery", "Active", "Credit", "Id"], axis=1)
     # drop completely empty entries.
-    read_file.dropna()
+    read_file.dropna(subset=['Phone 1 - Value'], inplace=True)
     # drop duplicates
     read_file.drop_duplicates()
     
+    # drop last row
+    read_file.drop(read_file.tail(1).index, inplace=True) 
+
     # insert the "phone type" column and assign every value to "Mobile" before each phone number in the data frame.
     read_file.insert(4, 'Phone 1 - Type', 'Mobile', allow_duplicates = True)
     print(read_file.head())
@@ -73,10 +73,6 @@ def convertToCSV ():
     read_file.to_csv(export_file_path, index = None, header=True, index_label = True, encoding='utf-8')
     # root.destroy()
 
-def exitApplication():
-    MsgBox = tk.messagebox.askquestion ('Exit Application','Are you sure you want to exit the application?',icon = 'warning')
-    if MsgBox == 'yes':
-       root.destroy()
 
 def center(win):
     """
