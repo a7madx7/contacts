@@ -22,11 +22,14 @@ def main():
     lbl.config(font=('helvetica', 20))
     main_canvas.create_window(150, 60, window=lbl)
 
-    browseButton_Excel = tk.Button(text="      Import Excel File     ", command=getExcel, bg='green', fg='white', font=('helvetica', 12, 'bold'))
+    browseButton_Excel = tk.Button(text="      Import excel file     ", command=getExcel, bg='green', fg='white', font=('helvetica', 12, 'bold'))
     main_canvas.create_window(150, 130, window=browseButton_Excel)
 
-    saveAsButton_CSV = tk.Button(text='Convert to contacts', command=convertToCSV, bg='green', fg='white', font=('helvetica', 12, 'bold'))
+    saveAsButton_CSV = tk.Button(text='Convert to contacts', command=convertToCSV, bg='green', fg='white', font=('helvetica', 13, 'bold'))
     main_canvas.create_window(150, 180, window=saveAsButton_CSV)
+
+    closeAppButton = tk.Button(text='Exit app', command=closeApp, bg='red', fg='white', font=('helvetica', 14, 'bold'))
+    main_canvas.create_window(150, 240, window=closeAppButton)
 
     lbl = tk.Label(root, text='By Dr. Ahmad Hamdi Emara', bg = 'lightsteelblue3', fg='blue')
     lbl.config(font=('helvetica', 12))
@@ -52,7 +55,7 @@ def convertToCSV ():
     # change column names to fit google contacts format
     read_file.columns = ["Id", "Gender", "Name", "Middle name", "Family name", "Phone 1 - Value", "Receipts", "Amount", "City", "Area", "Street", "Branch", "Language", "Delivery", "Active", "Credit"]
 
-    # drop any entry with empty phone number
+    # convert any entry with empty phone number to np.nan for later dropping.
     read_file['Phone 1 - Value'].replace('', np.nan, inplace=True)
 
     # drop unnecessary columns from the data frame.
@@ -64,6 +67,9 @@ def convertToCSV ():
     
     # drop last row
     read_file.drop(read_file.tail(1).index, inplace=True) 
+
+    # add the middle name to the first name.
+    read_file['Name'] = read_file['Name'] + ' ' + read_file['Middle name']
 
     # insert the "phone type" column and assign every value to "Mobile" before each phone number in the data frame.
     read_file.insert(4, 'Phone 1 - Type', 'Mobile', allow_duplicates = True)
@@ -91,5 +97,8 @@ def center(win):
     win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
     win.deiconify()
 
+def closeApp():
+    root.destroy()
+    
 if __name__ == "__main__":
     main()
