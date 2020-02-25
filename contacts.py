@@ -53,26 +53,38 @@ def convertToCSV ():
     
     # edit read file here before saving it to csv
     # change column names to fit google contacts format
-    read_file.columns = ["Id", "Gender", "Name", "Middle name", "Family name", "Phone 1 - Value", "Receipts", "Amount", "City", "Area", "Street", "Branch", "Language", "Delivery", "Active", "Credit"]
+    read_file.columns = ["Id", "Gender", "Given Name", "Maiden Name", "Family Name", "Phone 1 - Value", "Receipts", "Amount", "City", "Area", "Street", "Branch", "Language", "Delivery", "Active", "Location"]
 
     # convert any entry with empty phone number to np.nan for later dropping.
     read_file['Phone 1 - Value'].replace('', np.nan, inplace=True)
 
     # drop unnecessary columns from the data frame.
-    read_file = read_file.drop(["Receipts", "Amount", "Delivery", "Active", "Credit", "Id"], axis=1)
-    # drop completely empty entries.
+    read_file = read_file.drop(["Receipts", "Amount", "Delivery", "Active", "Id"], axis=1)
+
+    # insert the "phone type" column and assign every value to "Mobile" before each phone number in the data frame.
+    read_file.insert(4, 'Phone 1 - Type', 'Mobile', allow_duplicates = True)
+
+    read_file.insert(1, 'Name', '', allow_duplicates = True)
+    read_file.insert(1, 'Nickname', '', allow_duplicates = True)
+    
+     # drop completely empty entries.
     read_file.dropna(subset=['Phone 1 - Value'], inplace=True)
+
+    # read_file['Location'] = read_file['City'] + ' | ' + read_file['Area']
+    # add the middle name to the first name.
+    read_file['Name'] = read_file['Given Name'] + ' ' + read_file['Maiden Name'] + ' ' + read_file['Family Name']
+    read_file['Nickname'] = read_file['Family Name']
+    
+    m = read_file['Maiden Name'].notna() & read_file['Maiden Name'].ne('')
+    read_file.loc[m, 'Given Name'] += ' ' + read_file.loc[m, 'Maiden Name']
+   
     # drop duplicates
     read_file.drop_duplicates()
     
     # drop last row
     read_file.drop(read_file.tail(1).index, inplace=True) 
 
-    # add the middle name to the first name.
-    read_file['Name'] = read_file['Name'] + ' ' + read_file['Middle name']
 
-    # insert the "phone type" column and assign every value to "Mobile" before each phone number in the data frame.
-    read_file.insert(4, 'Phone 1 - Type', 'Mobile', allow_duplicates = True)
     print(read_file.head())
 
     # save the ready google contacts file.
